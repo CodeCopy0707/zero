@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en" class="h-100">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ title }}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="/static/css/style.css" rel="stylesheet">
+</head>
+<body class="h-100">
+    <!-- Top Navigation Bar -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark border-bottom">
+        <div class="container-fluid">
+            <a class="navbar-brand d-flex align-items-center" href="#">
+                <i class="fas fa-robot me-2"></i>
+                <span class="fw-bold">{{ agent_name }}</span>
+                <small class="ms-2 text-muted">v1.0</small>
+            </a>
+
+            <div class="navbar-nav ms-auto d-flex flex-row">
+                <div class="nav-item me-3">
+                    <span class="navbar-text">
+                        <i class="fas fa-circle text-success me-1" id="status-indicator"></i>
+                        <span id="connection-status">Connected</span>
+                    </span>
+                </div>
+                <div class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                        <i class="fas fa-cog"></i>
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        <li><a class="dropdown-item" href="#" id="settings-btn"><i class="fas fa-sliders-h me-2"></i>Settings</a></li>
+                        <li><a class="dropdown-item" href="#" id="export-chat-btn"><i class="fas fa-download me-2"></i>Export Chat</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item text-danger" href="#" id="reset-agent-btn"><i class="fas fa-refresh me-2"></i>Reset Agent</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container-fluid h-100 p-0">
+        <div class="row h-100 g-0">
+            <!-- Left Sidebar -->
+            <div class="col-lg-3 col-xl-2 sidebar-left">
+                <div class="sidebar-content h-100">
+                    <!-- Agent Status -->
+                    <div class="status-section">
+                        <h6 class="section-title">
+                            <i class="fas fa-tachometer-alt me-2"></i>Agent Status
+                        </h6>
+                        <div class="status-grid">
+                            <div class="status-item">
+                                <div class="status-label">State</div>
+                                <div class="status-value">
+                                    <span id="agent-state" class="badge bg-success">Idle</span>
+                                </div>
+                            </div>
+                            <div class="status-item">
+                                <div class="status-label">Agents</div>
+                                <div class="status-value" id="agent-count">1</div>
+                            </div>
+                            <div class="status-item">
+                                <div class="status-label">Memory</div>
+                                <div class="status-value" id="memory-count">0</div>
+                            </div>
+                            <div class="status-item">
+                                <div class="status-label">Tools</div>
+                                <div class="status-value" id="tools-count">0</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Agent Hierarchy -->
+                    <div class="hierarchy-section">
+                        <h6 class="section-title">
+                            <i class="fas fa-sitemap me-2"></i>Agent Hierarchy
+                        </h6>
+                        <div id="agent-hierarchy" class="hierarchy-tree">
+                            <div class="agent-node root-agent">
+                                <i class="fas fa-robot me-2"></i>
+                                <span>{{ agent_name }}</span>
+                                <span class="badge bg-primary ms-2">Root</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Available Tools -->
+                    <div class="tools-section">
+                        <h6 class="section-title">
+                            <i class="fas fa-tools me-2"></i>Available Tools
+                        </h6>
+                        <div id="tools-list" class="tools-grid">
+                            <div class="text-muted text-center py-3">
+                                <i class="fas fa-spinner fa-spin me-2"></i>Loading tools...
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Main Chat Area -->
+            <div class="col-lg-6 col-xl-7 main-chat">
+                <div class="chat-container h-100">
+                    <!-- Chat Header -->
+                    <div class="chat-header">
+                        <div class="d-flex align-items-center">
+                            <div class="chat-avatar me-3">
+                                <i class="fas fa-robot"></i>
+                            </div>
+                            <div>
+                                <h5 class="mb-0">{{ agent_name }}</h5>
+                                <small class="text-muted">AI Assistant powered by Gemini</small>
+                            </div>
+                        </div>
+                        <div class="chat-actions">
+                            <button class="btn btn-outline-secondary btn-sm me-2" id="clear-chat-btn">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                            <button class="btn btn-outline-primary btn-sm" id="new-chat-btn">
+                                <i class="fas fa-plus"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Chat Messages -->
+                    <div id="chat-messages" class="chat-messages">
+                        <div class="welcome-message">
+                            <div class="message-wrapper assistant">
+                                <div class="message-avatar">
+                                    <i class="fas fa-robot"></i>
+                                </div>
+                                <div class="message-content">
+                                    <div class="message-header">
+                                        <span class="message-sender">{{ agent_name }}</span>
+                                        <span class="message-time">Just now</span>
+                                    </div>
+                                    <div class="message-text">
+                                        <div class="welcome-content">
+                                            <h6>👋 Welcome to Agent Zero Gemini!</h6>
+                                            <p>I'm your AI assistant powered by Google's Gemini AI. I can help you with:</p>
+                                            <ul class="feature-list">
+                                                <li><i class="fas fa-code text-primary"></i> Execute Python code and scripts</li>
+                                                <li><i class="fas fa-terminal text-success"></i> Run terminal commands</li>
+                                                <li><i class="fas fa-search text-info"></i> Search the web for information</li>
+                                                <li><i class="fas fa-file text-warning"></i> Process and manage files</li>
+                                                <li><i class="fas fa-users text-purple"></i> Create subordinate agents for complex tasks</li>
+                                                <li><i class="fas fa-brain text-danger"></i> Learn and remember from our conversations</li>
+                                            </ul>
+                                            <p class="mb-0">What would you like to work on today?</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Typing Indicator -->
+                    <div id="typing-indicator" class="typing-indicator" style="display: none;">
+                        <div class="message-wrapper assistant">
+                            <div class="message-avatar">
+                                <i class="fas fa-robot"></i>
+                            </div>
+                            <div class="message-content">
+                                <div class="typing-animation">
+                                    <span></span>
+                                    <span></span>
+                                    <span></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Chat Input -->
+                    <div class="chat-input-container">
+                        <div class="chat-input">
+                            <div class="input-wrapper">
+                                <textarea
+                                    id="message-input"
+                                    class="form-control"
+                                    placeholder="Type your message here..."
+                                    rows="1"
+                                    maxlength="4000"></textarea>
+                                <div class="input-actions">
+                                    <button id="attach-btn" class="btn btn-link p-1" title="Attach file">
+                                        <i class="fas fa-paperclip"></i>
+                                    </button>
+                                    <button id="voice-btn" class="btn btn-link p-1" title="Voice input">
+                                        <i class="fas fa-microphone"></i>
+                                    </button>
+                                    <button id="send-btn" class="btn btn-primary" disabled>
+                                        <i class="fas fa-paper-plane"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="input-footer">
+                                <small class="text-muted">
+                                    Press <kbd>Ctrl</kbd> + <kbd>Enter</kbd> to send • <kbd>Shift</kbd> + <kbd>Enter</kbd> for new line
+                                </small>
+                                <div class="character-count">
+                                    <span id="char-count">0</span>/4000
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Sidebar -->
+            <div class="col-lg-3 col-xl-3 sidebar-right">
+                <div class="sidebar-content h-100">
+                    <!-- Memory & Context -->
+                    <div class="memory-section">
+                        <h6 class="section-title">
+                            <i class="fas fa-brain me-2"></i>Memory & Context
+                        </h6>
+                        <div id="memory-list" class="memory-items">
+                            <div class="text-muted text-center py-3">
+                                <i class="fas fa-brain me-2"></i>No memories yet
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Recent Activities -->
+                    <div class="activity-section">
+                        <h6 class="section-title">
+                            <i class="fas fa-history me-2"></i>Recent Activities
+                        </h6>
+                        <div id="activity-list" class="activity-items">
+                            <div class="activity-item">
+                                <div class="activity-icon">
+                                    <i class="fas fa-power-off text-success"></i>
+                                </div>
+                                <div class="activity-content">
+                                    <div class="activity-title">Agent Started</div>
+                                    <div class="activity-time">Just now</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Performance Metrics -->
+                    <div class="metrics-section">
+                        <h6 class="section-title">
+                            <i class="fas fa-chart-line me-2"></i>Performance
+                        </h6>
+                        <div class="metrics-grid">
+                            <div class="metric-item">
+                                <div class="metric-value" id="response-time">0ms</div>
+                                <div class="metric-label">Avg Response</div>
+                            </div>
+                            <div class="metric-item">
+                                <div class="metric-value" id="success-rate">100%</div>
+                                <div class="metric-label">Success Rate</div>
+                            </div>
+                            <div class="metric-item">
+                                <div class="metric-value" id="total-interactions">0</div>
+                                <div class="metric-label">Interactions</div>
+                            </div>
+                            <div class="metric-item">
+                                <div class="metric-value" id="uptime">0m</div>
+                                <div class="metric-label">Uptime</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Loading Modal -->
+    <div class="modal fade" id="loadingModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-sm modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-body text-center">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                    <div class="mt-2">Processing...</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/static/js/app.js"></script>
+</body>
+</html>
